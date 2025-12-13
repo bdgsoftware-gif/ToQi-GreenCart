@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
 
     <title>
         {{ config('app.name', ' - Green Cart') }}@hasSection('title')
@@ -33,15 +34,13 @@
     @stack('styles')
 </head>
 
-<body class="font-sans text-gray-900 antialiased">
+<body class="font-inter text-gray-900 antialiased">
     <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
         <div class="w-full sm:max-w-md md:max-w-lg mt-6 px-6 py-8 bg-white shadow-md overflow-hidden sm:rounded-lg">
-            <div class="text-center">
-                <div class="flex justify-center">
-                    <i class="fas fa-leaf text-white text-lg"></i>
-                </div>
+            <div class="flex justify-center">
+                <img src="{{ asset('images/logo.png') }}" alt="{{ config('app.name', 'Application Logo') }}"
+                    class="h-16 w-auto object-contain" loading="lazy">
             </div>
-
             @yield('content')
         </div>
 

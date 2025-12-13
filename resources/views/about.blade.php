@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="py-12 px-4">
-        <div class="max-w-7xl mx-auto">
+        <div class="max-w-8xl mx-auto">
             <!-- Hero Section -->
             <div class="text-center mb-16">
                 <h1 class="text-4xl font-bold text-gray-900 mb-6">About GreenCart</h1>

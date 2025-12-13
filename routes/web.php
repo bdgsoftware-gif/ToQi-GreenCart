@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Frontend\HomeController as FrontendHomeController;
 
 // Admin Controllers
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -43,6 +44,8 @@ use App\Http\Controllers\Customer\WishlistController as CustomerWishlistControll
 Route::get('/', function () {
     return redirect()->route('dashboard');
 })->name('home');
+
+Route::get('/website', [FrontendHomeController::class, 'index'])->name('website');
 
 // About Us
 Route::get('/about', [HomeController::class, 'about'])->name('about');

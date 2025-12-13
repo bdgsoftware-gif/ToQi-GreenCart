@@ -6,7 +6,7 @@
     <div class="min-h-screen bg-gradient-to-b from-green-50 to-white">
         <!-- Hero Section -->
         <section class="relative py-20 px-4">
-            <div class="max-w-7xl mx-auto">
+            <div class="max-w-8xl mx-auto">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <div>
                         <h1 class="text-5xl font-bold text-gray-900 mb-6">
@@ -38,7 +38,7 @@
 
         <!-- Features Section -->
         <section class="py-20 px-4 bg-white">
-            <div class="max-w-7xl mx-auto">
+            <div class="max-w-8xl mx-auto">
                 <div class="text-center mb-16">
                     <h2 class="text-3xl font-bold text-gray-900 mb-4">Why Choose GreenCart?</h2>
                     <p class="text-gray-600 max-w-2xl mx-auto">
@@ -75,7 +75,7 @@
 
         <!-- Categories Preview -->
         <section class="py-20 px-4 bg-gray-50">
-            <div class="max-w-7xl mx-auto">
+            <div class="max-w-8xl mx-auto">
                 <div class="text-center mb-16">
                     <h2 class="text-3xl font-bold text-gray-900 mb-4">Shop by Category</h2>
                     <p class="text-gray-600">Discover products from various organic categories</p>

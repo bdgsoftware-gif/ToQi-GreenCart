@@ -22,7 +22,7 @@ export default {
                 "10xl": "104rem",
             },
             fontFamily: {
-                sans: ["Figtree", ...defaultTheme.fontFamily.sans],
+                inter: ["Inter", ...defaultTheme.fontFamily.sans],
             },
         },
     },

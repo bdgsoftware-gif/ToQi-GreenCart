@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
 
     <title>
         @hasSection('title')
@@ -28,7 +29,7 @@
     @stack('styles')
 </head>
 
-<body class="font-sans antialiased bg-gray-50">
+<body class="font-inter antialiased bg-gray-50">
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
         @include('partials.sidebar')

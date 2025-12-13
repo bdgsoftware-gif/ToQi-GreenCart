@@ -5,13 +5,14 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Category;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create roles
+        // 1. Create roles
         $roles = [
             ['name' => 'admin', 'description' => 'System Administrator'],
             ['name' => 'seller', 'description' => 'Product Seller'],
@@ -22,34 +23,30 @@ class DatabaseSeeder extends Seeder
             Role::create($role);
         }
 
-        // Create admin user
+        // 2. Create categories
+        $this->call(CategorySeeder::class);
+
+        // 3. Create users
+        // Admin
         User::create([
             'role_id' => 1,
             'full_name' => 'Admin User',
             'email' => 'admin@greencart.com',
             'password' => Hash::make('password123'),
+            'email_verified_at' => now(),
             'is_active' => true,
         ]);
 
-        // Create sample seller
-        User::create([
-            'role_id' => 2,
-            'full_name' => 'Organic Farm Seller',
-            'email' => 'seller@greencart.com',
-            'password' => Hash::make('password123'),
-            'phone' => '+1234567890',
-            'is_active' => true,
-        ]);
+        // Create multiple sellers
+        User::factory()->count(5)->seller()->create();
 
-        // Create sample customer
-        User::create([
-            'role_id' => 3,
-            'full_name' => 'John Doe',
-            'email' => 'customer@greencart.com',
-            'password' => Hash::make('password123'),
-            'is_active' => true,
-        ]);
+        // Create multiple customers
+        User::factory()->count(20)->customer()->create();
 
-        $this->call(CategorySeeder::class);
+        // 4. Create products
+        $this->call(ProductSeeder::class);
+
+        // 5. Create product images
+        $this->call(ProductImageSeeder::class);
     }
 }

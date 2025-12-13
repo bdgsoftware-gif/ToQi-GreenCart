@@ -38,6 +38,11 @@ class User extends Authenticatable
         'is_active' => 'boolean',
     ];
 
+    public function getNameAttribute()
+    {
+        return $this->full_name;
+    }
+
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);

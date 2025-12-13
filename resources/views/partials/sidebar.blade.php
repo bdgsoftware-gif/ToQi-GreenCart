@@ -6,7 +6,8 @@
                     <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
                         <div
                             class="w-8 h-8 rounded-lg bg-gradient-to-r from-green-500 to-green-700 flex items-center justify-center">
-                            <i class="fas fa-leaf text-white text-lg"></i>
+                            <img src="{{ asset('images/logo.png') }}" alt="{{ config('app.name', 'Application Logo') }}"
+                                class="h-6 w-auto object-contain" loading="lazy">
                         </div>
                         <span class="text-xl font-bold text-gray-900">GreenCart</span>
                     </a>
