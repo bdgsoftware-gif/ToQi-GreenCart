@@ -7,7 +7,7 @@
         <div class="container mx-auto px-4">
             <h1 class="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
 
-            @if ($cartItems->count() > 0)
+            @if ($cartItems && $cartItems->count() > 0)
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Cart Items -->
                     <div class="lg:col-span-2">
@@ -25,29 +25,38 @@
                             <!-- Cart Items List -->
                             <div class="divide-y divide-gray-200">
                                 @foreach ($cartItems as $item)
-                                    <div class="p-6">
+                                    @php
+                                        // Handle both database and session items
+                                        $product = $item->product ?? $item['product'];
+                                        $itemId = $item->product_id ?? $item['product_id'];
+                                        $quantity = $item->quantity ?? $item['quantity'];
+                                        $unitPrice = $item->unit_price ?? $item['unit_price'];
+                                        $totalPrice = $item->total_price ?? $item['total_price'];
+                                        $productSlug = $product->slug ?? $product['slug'];
+                                        $productName = $product->name ?? $product['name'];
+                                        $productImage = $product->image ?? $product['image'];
+                                    @endphp
+
+                                    <div class="p-6 cart-item" data-item-id="{{ $itemId }}">
                                         <div class="grid grid-cols-12 gap-4 items-center">
                                             <!-- Product Info -->
                                             <div class="col-span-6">
                                                 <div class="flex items-center space-x-4">
-                                                    <a href="{{ route('products.show', $item->product->slug) }}"
+                                                    <a href="{{ route('products.show', $productSlug) }}"
                                                         class="flex-shrink-0">
-                                                        <img src="{{ $item->product->image }}"
-                                                            alt="{{ $item->product->name }}"
+                                                        <img src="{{ $productImage }}" alt="{{ $productName }}"
                                                             class="w-20 h-20 object-cover rounded-lg">
                                                     </a>
                                                     <div>
-                                                        <a href="{{ route('products.show', $item->product->slug) }}"
-                                                            class="block">
+                                                        <a href="{{ route('products.show', $productSlug) }}" class="block">
                                                             <h3
                                                                 class="font-medium text-gray-900 hover:text-primary-600 transition-colors duration-200">
-                                                                {{ $item->product->name }}
+                                                                {{ $productName }}
                                                             </h3>
                                                         </a>
-                                                        <p class="text-sm text-gray-500 mt-1">In Stock:
-                                                            {{ $item->product->stock_quantity }}</p>
-                                                        <button
-                                                            class="text-red-600 hover:text-red-800 text-sm font-medium mt-2 transition-colors duration-200">
+
+                                                        <button onclick="removeFromCart('{{ $itemId }}')"
+                                                            class="text-red-600 hover:text-red-800 text-sm font-medium mt-2 transition-colors duration-200 remove-item">
                                                             <i class="fas fa-trash-alt mr-1"></i> Remove
                                                         </button>
                                                     </div>
@@ -57,22 +66,25 @@
                                             <!-- Price -->
                                             <div class="col-span-2">
                                                 <div class="text-center">
-                                                    <span class="font-medium text-gray-900"><span
-                                                            class="font-bengali">৳</span>{{ number_format($item->unit_price, 2) }}</span>
+                                                    <span class="font-medium text-gray-900">
+                                                        <span
+                                                            class="font-bengali">৳</span>{{ number_format($unitPrice, 2) }}
+                                                    </span>
                                                 </div>
                                             </div>
 
                                             <!-- Quantity -->
                                             <div class="col-span-2">
                                                 <div class="flex items-center justify-center space-x-2">
-                                                    <button
+                                                    <button onclick="decreaseQuantity('{{ $itemId }}')"
                                                         class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">
                                                         <i class="fas fa-minus"></i>
                                                     </button>
-                                                    <input type="number" value="{{ $item->quantity }}" min="1"
-                                                        max="{{ $item->product->stock_quantity }}"
-                                                        class="w-16 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-                                                    <button
+                                                    <input type="number" value="{{ $quantity }}" min="1"
+                                                        max="5" data-item-id="{{ $itemId }}"
+                                                        class="w-16 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent quantity-input"
+                                                        onchange="updateQuantity('{{ $itemId }}', this.value)">
+                                                    <button onclick="increaseQuantity('{{ $itemId }}')"
                                                         class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">
                                                         <i class="fas fa-plus"></i>
                                                     </button>
@@ -82,8 +94,10 @@
                                             <!-- Total -->
                                             <div class="col-span-2">
                                                 <div class="text-center">
-                                                    <span class="font-bold text-gray-900"><span
-                                                            class="font-bengali">৳</span>{{ number_format($item->total_price, 2) }}</span>
+                                                    <span class="font-bold text-gray-900">
+                                                        <span
+                                                            class="font-bengali">৳</span>{{ number_format($totalPrice, 2) }}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
@@ -95,16 +109,16 @@
                             <div class="p-6 border-t border-gray-200">
                                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                                     <div class="flex items-center space-x-4">
-                                        <input type="text" placeholder="Coupon code"
+                                        <input type="text" id="couponCode" placeholder="Coupon code"
                                             class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-                                        <button
+                                        <button onclick="applyCoupon()"
                                             class="px-6 py-2 border-2 border-primary-600 text-primary-600 font-medium rounded-lg hover:bg-primary-50 transition-colors duration-200">
                                             Apply Coupon
                                         </button>
                                     </div>
-                                    <button
-                                        class="px-6 py-2 border-2 border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                                        <i class="fas fa-redo-alt mr-2"></i> Update Cart
+                                    <button onclick="clearCart()"
+                                        class="px-6 py-2 border-2 border-red-600 text-red-600 font-medium rounded-lg hover:bg-red-50 transition-colors duration-200">
+                                        <i class="fas fa-trash-alt mr-2"></i> Clear Cart
                                     </button>
                                 </div>
                             </div>
@@ -130,8 +144,9 @@
                             <div class="p-6 space-y-4">
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">Subtotal</span>
-                                    <span class="font-medium"><span
-                                            class="font-bengali">৳</span>{{ number_format($subtotal, 2) }}</span>
+                                    <span class="font-medium">
+                                        <span class="font-bengali">৳</span>{{ number_format($subtotal, 2) }}
+                                    </span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">Shipping</span>
@@ -139,20 +154,23 @@
                                         @if ($shipping == 0)
                                             <span class="text-green-600">Free</span>
                                         @else
-                                            ${{ number_format($shipping, 2) }}
+                                            <span class="font-bengali">৳</span>{{ number_format($shipping, 2) }}
                                         @endif
                                     </span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">Tax</span>
-                                    <span class="font-medium"><span
-                                            class="font-bengali">৳</span>{{ number_format($tax, 2) }}</span>
+                                    <span class="font-medium">
+                                        <span class="font-bengali">৳</span>{{ number_format($tax, 2) }}
+                                    </span>
                                 </div>
 
                                 <div class="border-t border-gray-200 pt-4">
                                     <div class="flex justify-between text-lg font-bold">
                                         <span>Total</span>
-                                        <span><span class="font-bengali">৳</span>{{ number_format($total, 2) }}</span>
+                                        <span>
+                                            <span class="font-bengali">৳</span>{{ number_format($total, 2) }}
+                                        </span>
                                     </div>
                                 </div>
 
@@ -161,17 +179,19 @@
                                     <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                                         <div class="flex items-center">
                                             <i class="fas fa-shipping-fast text-green-600 mr-2"></i>
-                                            <span class="text-green-700 font-medium">Free shipping on orders over $50</span>
+                                            <span class="text-green-700 font-medium">Free shipping on orders over
+                                                ৳5,000</span>
                                         </div>
                                     </div>
                                 @else
                                     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                                         <div class="flex items-center">
                                             <i class="fas fa-info-circle text-yellow-600 mr-2"></i>
-                                            <span class="text-yellow-700">Add <span
+                                            <span class="text-yellow-700">
+                                                Add <span
                                                     class="font-bengali">৳</span>{{ number_format(5000 - $subtotal, 2) }}
-                                                more
-                                                for free shipping</span>
+                                                more for free shipping
+                                            </span>
                                         </div>
                                     </div>
                                 @endif
@@ -234,3 +254,126 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        // Cart functions
+        function updateCartCount() {
+            fetch('{{ route('cart.count') }}')
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelectorAll('.cart-count').forEach(el => {
+                        el.textContent = data.count;
+                        el.classList.remove('hidden');
+                    });
+                });
+        }
+
+        function updateQuantity(itemId, quantity) {
+            if (quantity < 1) {
+                removeFromCart(itemId);
+                return;
+            }
+
+            fetch(`/cart/update/${itemId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        quantity: quantity
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload(); // Reload to update totals
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function increaseQuantity(itemId) {
+            const input = document.querySelector(`input[data-item-id="${itemId}"]`);
+            if (input) {
+                let currentVal = parseInt(input.value);
+                const maxVal = parseInt(input.max);
+                if (currentVal < maxVal) {
+                    input.value = currentVal + 1;
+                    updateQuantity(itemId, currentVal + 1);
+                }
+            }
+        }
+
+        function decreaseQuantity(itemId) {
+            const input = document.querySelector(`input[data-item-id="${itemId}"]`);
+            if (input) {
+                let currentVal = parseInt(input.value);
+                const minVal = parseInt(input.min);
+                if (currentVal > minVal) {
+                    input.value = currentVal - 1;
+                    updateQuantity(itemId, currentVal - 1);
+                }
+            }
+        }
+
+        function removeFromCart(itemId) {
+            if (confirm('Are you sure you want to remove this item from cart?')) {
+                fetch(`/cart/remove/${itemId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                            updateCartCount();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+        }
+
+        function clearCart() {
+            if (confirm('Are you sure you want to clear your entire cart?')) {
+                fetch('{{ route('cart.clear') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(response => {
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+        }
+
+        function applyCoupon() {
+            const couponCode = document.getElementById('couponCode').value;
+            if (!couponCode) {
+                alert('Please enter a coupon code');
+                return;
+            }
+
+            // Implement coupon logic here
+            alert('Coupon functionality to be implemented');
+        }
+
+        // Initialize cart count on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+        });
+    </script>
+@endpush

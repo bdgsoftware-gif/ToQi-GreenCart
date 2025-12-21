@@ -9,27 +9,7 @@ class CheckoutController extends Controller
 {
     public function index()
     {
-        // For demo purposes
-        $cartItems = collect([
-            (object)[
-                'product' => (object)[
-                    'name' => 'Organic Apples',
-                    'image' => 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                    'price' => 4.99,
-                ],
-                'quantity' => 2,
-                'total_price' => 9.98,
-            ],
-            (object)[
-                'product' => (object)[
-                    'name' => 'Fresh Carrots',
-                    'image' => 'https://images.unsplash.com/photo-1522184216316-3c25379f9760?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                    'price' => 3.49,
-                ],
-                'quantity' => 1,
-                'total_price' => 3.49,
-            ],
-        ]);
+        $cartItems = 
 
         $subtotal = $cartItems->sum('total_price');
         $shipping = $subtotal > 50 ? 0 : 5.99;

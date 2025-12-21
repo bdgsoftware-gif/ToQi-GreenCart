@@ -2,30 +2,45 @@
 
 namespace App\Providers;
 
-use App\Models\Cart;
-use App\Models\Footer;
 use App\Models\Category;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
-use App\Http\Controllers\Frontend\HomeController;
-use App\Http\Controllers\Frontend\FooterController;
-use Illuminate\Support\Facades\Auth;
 
 class ViewServiceProvider extends ServiceProvider
 {
-    /** * Register services. */
-    public function register(): void
-    {
-        //
-    }
-    /** * Bootstrap services. */
     public function boot()
     {
-        // Global Navigation using real Category data 
+        // Global Categories
         View::composer('*', function ($view) {
-            $categories = Category::withCount('products')->get();
+            $categories = Category::withCount('products')
+                ->whereHas('products')
+                ->get();
 
             $view->with('navCategories', $categories);
+        });
+
+        // Global Cart Count
+        View::composer('*', function ($view) {
+            $cartCount = 0;
+
+            if (Auth::check() && Auth::user()->isCustomer()) {
+                // For logged-in customers
+                $cart = Auth::user()->cart;
+                if ($cart) {
+                    $cartCount = $cart->items()->sum('quantity');
+                }
+            } else {
+                // For guests
+                $guestCart = session()->get('guest_cart', ['items' => [], 'total_price' => 0]);
+                if (isset($guestCart['items']) && is_array($guestCart['items'])) {
+                    foreach ($guestCart['items'] as $item) {
+                        $cartCount += $item['quantity'] ?? 0;
+                    }
+                }
+            }
+
+            $view->with('cartCount', $cartCount);
         });
     }
 }

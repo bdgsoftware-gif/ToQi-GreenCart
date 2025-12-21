@@ -16,7 +16,6 @@ use App\Http\Controllers\Seller\OrderController as SellerOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 
 // Seller Controllers
-use App\Http\Controllers\Customer\CartController as CustomerCartController;
 use App\Http\Controllers\Frontend\HomeController as FrontendHomeController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
@@ -32,27 +31,18 @@ use App\Http\Controllers\Seller\AnalyticsController as SellerAnalyticsController
 use App\Http\Controllers\Seller\DashboardController as SellerDashboardController;
 use App\Http\Controllers\Customer\WishlistController as CustomerWishlistController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
+use App\Http\Controllers\Customer\CartController as CustomerCartController;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
-
-// Public Routes
-// Route::get('/', function () {
-//     return redirect()->route('dashboard');
-// })->name('home');
 
 Route::get('/', [FrontendHomeController::class, 'index'])->name('home');
 
 // About Us
-Route::get('/about', [HomeController::class, 'about'])->name('about');
+Route::get('/about', [FrontendHomeController::class, 'about'])->name('about');
 
 // Contact Us
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
@@ -68,9 +58,31 @@ Route::get('/products/{slug}', [CustomerProductController::class, 'show'])->name
 // Category Routes
 Route::get('/categories', [CustomerCategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{slug}', [CustomerCategoryController::class, 'show'])->name('categories.show');
-Route::get('/cart', [CustomerCartController::class, 'index'])->name('cart.index');
 Route::get('/checkout', [CustomerCheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/process', [CustomerCheckoutController::class, 'process'])->name('checkout.process');
+
+/*
+|--------------------------------------------------------------------------
+| Global Routes
+|--------------------------------------------------------------------------
+*/
+// Cart Routes
+Route::prefix('cart')->name('cart.')->group(function () {
+    Route::get('/', [CustomerCartController::class, 'index'])->name('index');
+    Route::post('/add/{product}', [CustomerCartController::class, 'add'])->name('add');
+    Route::put('/update/{item}', [CustomerCartController::class, 'update'])->name('update');
+    Route::delete('/remove/{item}', [CustomerCartController::class, 'remove'])->name('remove');
+    Route::post('/clear', [CustomerCartController::class, 'clear'])->name('clear');
+    Route::get('/count', [CustomerCartController::class, 'getCartCount'])->name('count');
+});
+
+// Wishlist Routes
+Route::prefix('wishlist')->name('wishlist.')->group(function () {
+    Route::get('/', [CustomerWishlistController::class, 'index'])->name('index');
+    Route::post('/toggle/{product}', [CustomerWishlistController::class, 'toggle'])->name('toggle');
+    Route::delete('/remove/{product}', [CustomerWishlistController::class, 'remove'])->name('remove');
+    Route::post('/move-to-cart/{product}', [CustomerWishlistController::class, 'moveToCart'])->name('move-to-cart');
+});
 /*
 |--------------------------------------------------------------------------
 | Authentication Routes
@@ -205,13 +217,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/products/{product}', [CustomerProductController::class, 'show'])->name('products.show');
         Route::get('/products/category/{category}', [CustomerProductController::class, 'byCategory'])->name('products.category');
         Route::get('/products/search', [CustomerProductController::class, 'search'])->name('products.search');
-
-        // Cart
-        Route::resource('cart', CustomerCartController::class);
-        Route::post('/cart/add/{product}', [CustomerCartController::class, 'add'])->name('cart.add');
-        Route::post('/cart/update/{cartItem}', [CustomerCartController::class, 'update'])->name('cart.update');
-        Route::post('/cart/remove/{cartItem}', [CustomerCartController::class, 'remove'])->name('cart.remove');
-        Route::post('/cart/clear', [CustomerCartController::class, 'clear'])->name('cart.clear');
 
         // Checkout
         Route::get('/checkout', [CustomerCartController::class, 'checkout'])->name('checkout');

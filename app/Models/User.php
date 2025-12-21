@@ -39,7 +39,6 @@ class User extends Authenticatable
         'is_active' => 'boolean',
     ];
 
-
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
@@ -53,6 +52,16 @@ class User extends Authenticatable
     public function cart(): HasOne
     {
         return $this->hasOne(Cart::class, 'customer_id');
+    }
+
+    public function wishlists(): HasMany
+    {
+        return $this->hasMany(Wishlist::class, 'customer_id');
+    }
+
+    public function defaultWishlist(): HasOne
+    {
+        return $this->hasOne(Wishlist::class, 'customer_id')->where('is_default', true);
     }
 
     public function orders(): HasMany
@@ -73,16 +82,16 @@ class User extends Authenticatable
     // Helper methods for role checking
     public function isAdmin(): bool
     {
-        return $this->role_id === 1; // Assuming admin role_id is 1
+        return $this->role_id === 1;
     }
 
     public function isSeller(): bool
     {
-        return $this->role_id === 2; // Assuming seller role_id is 2
+        return $this->role_id === 2;
     }
 
     public function isCustomer(): bool
     {
-        return $this->role_id === 3; // Assuming customer role_id is 3
+        return $this->role_id === 3;
     }
 }

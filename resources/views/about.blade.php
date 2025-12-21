@@ -1,5 +1,4 @@
-@extends('layouts.guest')
-
+@extends('frontend.layouts.app')
 @section('title', 'About Us - GreenCart')
 
 @section('content')
