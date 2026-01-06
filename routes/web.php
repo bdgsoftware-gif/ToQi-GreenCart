@@ -24,6 +24,9 @@ use App\Http\Controllers\Frontend\CheckoutController as FrontendCheckoutControll
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+
+// Seller Controllers
+use App\Http\Controllers\Frontend\HomeController as FrontendHomeController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\AnalyticsController as AdminAnalyticsController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -45,6 +48,7 @@ use App\Http\Controllers\Customer\CheckoutController as CustomerCheckoutControll
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\WishlistController as CustomerWishlistController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
+use App\Http\Controllers\Customer\CartController as CustomerCartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,8 +58,10 @@ use App\Http\Controllers\Customer\DashboardController as CustomerDashboardContro
 
 Route::get('/', [FrontendHomeController::class, 'index'])->name('home');
 
-// Static Pages
-Route::get('/about', [HomeController::class, 'about'])->name('about');
+// About Us
+Route::get('/about', [FrontendHomeController::class, 'about'])->name('about');
+
+// Contact Us
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 Route::post('/contact', [HomeController::class, 'contactSubmit'])->name('contact.submit');
 Route::get('/terms', [HomeController::class, 'terms'])->name('terms');
@@ -71,12 +77,31 @@ Route::get('/products/{slug}', [CustomerProductController::class, 'show'])->name
 
 Route::get('/categories', [CustomerCategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{slug}', [CustomerCategoryController::class, 'show'])->name('categories.show');
-
-// Cart & Checkout (Guest view)
-Route::get('/cart', [CustomerCartController::class, 'index'])->name('cart.index');
 Route::get('/checkout', [CustomerCheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/process', [CustomerCheckoutController::class, 'process'])->name('checkout.process');
 
+/*
+|--------------------------------------------------------------------------
+| Global Routes
+|--------------------------------------------------------------------------
+*/
+// Cart Routes
+Route::prefix('cart')->name('cart.')->group(function () {
+    Route::get('/', [CustomerCartController::class, 'index'])->name('index');
+    Route::post('/add/{product}', [CustomerCartController::class, 'add'])->name('add');
+    Route::put('/update/{item}', [CustomerCartController::class, 'update'])->name('update');
+    Route::delete('/remove/{item}', [CustomerCartController::class, 'remove'])->name('remove');
+    Route::post('/clear', [CustomerCartController::class, 'clear'])->name('clear');
+    Route::get('/count', [CustomerCartController::class, 'getCartCount'])->name('count');
+});
+
+// Wishlist Routes
+Route::prefix('wishlist')->name('wishlist.')->group(function () {
+    Route::get('/', [CustomerWishlistController::class, 'index'])->name('index');
+    Route::post('/toggle/{product}', [CustomerWishlistController::class, 'toggle'])->name('toggle');
+    Route::delete('/remove/{product}', [CustomerWishlistController::class, 'remove'])->name('remove');
+    Route::post('/move-to-cart/{product}', [CustomerWishlistController::class, 'moveToCart'])->name('move-to-cart');
+});
 /*
 |--------------------------------------------------------------------------
 | Authentication Routes (Guest)
@@ -196,7 +221,13 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
 
-        Route::resource('cart', CustomerCartController::class);
+        // Checkout
+        Route::get('/checkout', [CustomerCartController::class, 'checkout'])->name('checkout');
+        Route::post('/checkout/process', [CustomerCartController::class, 'processCheckout'])->name('checkout.process');
+        Route::get('/checkout/success/{order}', [CustomerCartController::class, 'success'])->name('checkout.success');
+        Route::get('/checkout/cancel', [CustomerCartController::class, 'cancel'])->name('checkout.cancel');
+
+        // Orders
         Route::resource('orders', CustomerOrderController::class);
     });
 });

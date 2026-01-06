@@ -65,14 +65,9 @@
                         </path>
                     </svg>
                     <span
-                        class="absolute -top-2 -right-2 bg-primary-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                        0
+                        class="cart-count absolute -top-2 -right-2 bg-primary-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center {{ $cartCount > 0 ? '' : 'hidden' }}">
+                        {{ $cartCount }}
                     </span>
-                    <!-- Tooltip -->
-                    {{-- <span
-                        class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
-                        Cart
-                    </span> --}}
                 </a>
 
                 <!-- User Dropdown -->

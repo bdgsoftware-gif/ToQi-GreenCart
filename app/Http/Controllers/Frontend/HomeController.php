@@ -47,4 +47,8 @@ class HomeController extends Controller
             'featuredSellerProducts'
         ));
     }
+    public function about()
+    {
+        return view('about');
+    }
 }
