@@ -25,7 +25,7 @@
         </div>
 
         <!-- Products Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
             @foreach ($products as $product)
                 <div
                     class="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
@@ -59,6 +59,10 @@
                                 class="add-to-cart flex items-center justify-center w-10 h-10 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200"
                                 {{ $product->stock_quantity == 0 ? 'disabled' : '' }}>
                                 <i class="fas fa-shopping-cart"></i>
+                                <span
+                                    class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded px-2 py-1 text-xs {{ $product->stock_quantity == 0 ? 'bg-red-600 text-white' : 'bg-green-600 text-white' }} opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                                    {{ $product->stock_quantity == 0 ? 'Out of stock' : 'Add to cart' }}
+                                </span>
                             </button>
 
                         </div>
