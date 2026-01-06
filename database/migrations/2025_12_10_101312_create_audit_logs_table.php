@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('action', 255);
             $table->text('details')->nullable();
+            $table->string('model_type')->nullable();
+            $table->unsignedBigInteger('model_id')->nullable();
             $table->timestamps();
         });
     }

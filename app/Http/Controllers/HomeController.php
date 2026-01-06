@@ -2,58 +2,40 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    // Existing Methods...
-    public function index()
+    public function contact(): View
     {
-        return view('home');
-    }
-
-    public function about()
-    {
-        return view('about');
-    }
-
-    public function contact()
-    {
-        return view('frontend.pages.contact');
+        return view('frontend.contact');
     }
 
     public function contactSubmit(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|string|max:100',
             'email' => 'required|email',
-            'message' => 'required',
+            'message' => 'required|string|max:1000',
         ]);
 
-        return back()->with('success', 'Thank you for your message. We will get back to you soon!');
+        // store or email later
+        return back()->with('success', 'Message sent successfully.');
     }
 
-    public function faqs()
+    public function terms(): View
     {
-        return view('frontend.pages.faqs');
+        return view('frontend.terms');
     }
 
-    public function shippingPolicy()
+    public function privacy(): View
     {
-        return view('frontend.pages.shipping');
+        return view('frontend.privacy');
     }
 
-    public function returnPolicy()
+    public function faqs(): View
     {
-        return view('frontend.pages.returns');
-    }
-
-    public function privacy()
-    {
-        return view('frontend.pages.privacy');
-    }
-    public function contactPage()
-    {
-        return view('frontend.pages.contact');
+        return view('frontend.faqs');
     }
 }

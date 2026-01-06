@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal('amount', 10, 2);
             $table->enum('status', ['pending', 'success', 'failed', 'refunded'])->default('pending');
             $table->text('raw_response')->nullable();
+            $table->string('currency', 10)->default('BDT');
             $table->timestamps();
         });
     }

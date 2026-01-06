@@ -3,20 +3,26 @@
 namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\OrderItem;
 use App\Models\Order;
+use App\Models\OrderItem;
+use App\Enums\OrderStatus;
+use App\Guards\OrderStatusGuard;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * List all orders that contain seller items
      */
     public function index()
     {
-        $orders = OrderItem::where('seller_id', Auth::id())
-            ->with(['order.customer', 'product'])
+        $sellerId = Auth::id();
+
+        $orders = Order::whereHas('items', function ($q) use ($sellerId) {
+            $q->where('seller_id', $sellerId);
+        })
+            ->with(['items' => fn($q) => $q->where('seller_id', $sellerId)])
             ->latest()
             ->paginate(15);
 
@@ -24,75 +30,55 @@ class OrderController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
+     * Show a single order (seller slice only)
      */
     public function show(Order $order)
     {
-        // Get only order items that belong to this seller
-        $orderItems = $order->items()->where('seller_id', Auth::id())->get();
+        $this->authorize('view', $order);
 
-        if ($orderItems->isEmpty()) {
-            abort(404);
-        }
-
-        return view('seller.orders.show', compact('order', 'orderItems'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
-    public function updateStatus(Request $request, Order $order)
-    {
-        $request->validate([
-            'status' => 'required|in:pending,processing,shipped,delivered,cancelled'
+        $order->load([
+            'items' => fn($q) => $q->where('seller_id', Auth::id())->with('product'),
         ]);
 
-        // Check if seller has items in this order
-        $hasItems = $order->items()->where('seller_id', Auth::id())->exists();
+        return view('seller.orders.show', compact('order'));
+    }
 
-        if (!$hasItems) {
-            return response()->json(['success' => false, 'message' => 'Access denied'], 403);
+    /**
+     * Update order status (seller-allowed transitions only)
+     */
+    public function update(Request $request, Order $order)
+    {
+        $this->authorize('view', $order);
+
+        $request->validate([
+            'status' => 'required|string',
+        ]);
+
+        $currentStatus = $order->status->value;
+        $newStatus = $request->status;
+
+        // Guard status transition
+        if (!OrderStatusGuard::canTransition($currentStatus, $newStatus)) {
+            return back()->withErrors([
+                'status' => 'Invalid status transition.',
+            ]);
         }
 
-        $order->status = $request->status;
-        $order->save();
+        /**
+         * Seller rule:
+         * Seller can move:
+         * pending → processing
+         * processing → shipped
+         */
+        if (!in_array($newStatus, [
+            OrderStatus::Processing->value,
+            OrderStatus::Shipped->value,
+        ])) {
+            abort(403, 'Unauthorized status update.');
+        }
 
-        return response()->json(['success' => true]);
+        $order->update(['status' => $newStatus]);
+
+        return back()->with('success', 'Order status updated.');
     }
 }

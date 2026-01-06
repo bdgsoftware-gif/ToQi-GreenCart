@@ -9,93 +9,31 @@ use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
-    protected $cartService;
-
-    public function __construct(CartService $cartService)
-    {
-        $this->cartService = $cartService;
-    }
-
     public function index()
     {
-        $cart = $this->cartService->getCart();
-
-        $cartItems = collect($cart['items'] ?? []);
-
-        $subtotal = $cart['total_price'] ?? 0;
-        $shipping = $subtotal > 5000 ? 0 : 100;
-        $tax = $subtotal * 0.15;
-        $total = $subtotal + $shipping + $tax;
-        // dd($cartItems);
-        return view('frontend.cart.index', [
-            'cartItems' => $cartItems,
-            'subtotal' => $subtotal,
-            'shipping' => $shipping,
-            'tax' => $tax,
-            'total' => $total
-        ]);
+        return view('frontend.cart.index');
     }
 
-    public function add(Request $request, Product $product)
+    public function add(Product $product, Request $request, CartService $cart)
     {
-        $request->validate([
-            'quantity' => 'nullable|integer|min:1|max:' . $product->stock_quantity
-        ]);
+        $request->validate(['quantity' => 'integer|min:1']);
 
-        $quantity = $request->quantity ?? 1;
-
-        if ($product->stock_quantity < $quantity) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Insufficient stock available'
-            ], 422);
-        }
-
-        $this->cartService->addToCart($product, $quantity);
+        $cart->add($product, $request->quantity ?? 1);
 
         return response()->json([
             'success' => true,
-            'message' => 'Product added to cart successfully',
-            'cart_count' => $this->cartService->getCartCount()
+            'cart_count' => $cart->count(),
+            'cart_total' => $cart->totalFormatted(),
         ]);
     }
 
-    public function update(Request $request, $itemId)
+    public function remove($itemId, CartService $cart)
     {
-        $request->validate([
-            'quantity' => 'required|integer|min:1'
-        ]);
-
-        $this->cartService->updateQuantity($itemId, $request->quantity);
+        $cart->remove($itemId);
 
         return response()->json([
             'success' => true,
-            'message' => 'Cart updated successfully'
-        ]);
-    }
-
-    public function remove($itemId)
-    {
-        $this->cartService->removeItem($itemId);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Item removed from cart'
-        ]);
-    }
-
-    public function clear()
-    {
-        $this->cartService->clearCart();
-
-        return redirect()->route('cart.index')
-            ->with('success', 'Cart cleared successfully');
-    }
-
-    public function getCartCount()
-    {
-        return response()->json([
-            'count' => $this->cartService->getCartCount()
+            'cart_count' => $cart->count(),
         ]);
     }
 }

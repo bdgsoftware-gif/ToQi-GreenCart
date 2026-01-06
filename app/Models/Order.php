@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Enums\OrderStatus;
 
 class Order extends Model
 {
@@ -24,17 +25,9 @@ class Order extends Model
     ];
 
     protected $casts = [
-        'total_amount' => 'decimal:2'
+        'total_amount' => 'decimal:2',
+        'status' => OrderStatus::class,
     ];
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($order) {
-            $order->order_number = 'ORD-' . strtoupper(uniqid());
-        });
-    }
 
     public function customer(): BelongsTo
     {
@@ -45,4 +38,10 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+    
 }

@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
             $table->string('name', 150);
             $table->string('slug', 150)->unique();
+            $table->string('sku', 100)->unique();
+            $table->enum('approval_status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->string('image')->nullable();
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);

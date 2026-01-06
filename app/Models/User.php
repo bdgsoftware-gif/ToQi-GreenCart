@@ -80,18 +80,13 @@ class User extends Authenticatable
     }
 
     // Helper methods for role checking
-    public function isAdmin(): bool
+    public function hasRole(string $role): bool
     {
-        return $this->role_id === 1;
+        return $this->role?->slug === $role;
     }
 
-    public function isSeller(): bool
+    public function isActive(): bool
     {
-        return $this->role_id === 2;
-    }
-
-    public function isCustomer(): bool
-    {
-        return $this->role_id === 3;
+        return $this->is_active;
     }
 }

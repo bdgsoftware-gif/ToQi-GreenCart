@@ -3,63 +3,93 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Enums\OrderStatus;
+use App\Guards\OrderStatusGuard;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * List all orders (global view)
      */
     public function index()
     {
-        //
+        $orders = Order::with([
+            'customer',
+            'items.product',
+            'items.seller',
+        ])
+            ->latest()
+            ->paginate(20);
+
+        return view('admin.orders.index', compact('orders'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show full order details
      */
-    public function create()
+    public function show(Order $order)
     {
-        //
+        $order->load([
+            'customer',
+            'items.product',
+            'items.seller',
+            'payments',
+        ]);
+
+        return view('admin.orders.show', compact('order'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Admin-controlled status update
      */
-    public function store(Request $request)
+    public function updateStatus(Request $request, Order $order)
     {
-        //
+        $request->validate([
+            'status' => 'required|string',
+        ]);
+
+        $current = $order->status->value;
+        $next = $request->status;
+
+        if (!OrderStatusGuard::canTransition($current, $next)) {
+            return back()->withErrors([
+                'status' => "Invalid transition: $current → $next",
+            ]);
+        }
+
+        DB::transaction(function () use ($order, $next) {
+            $order->update(['status' => $next]);
+
+            /**
+             * Optional hooks (future-ready):
+             * - shipped → create shipment
+             * - delivered → release seller payout
+             * - cancelled → restore stock
+             */
+            if ($next === OrderStatus::Cancelled->value) {
+                foreach ($order->items as $item) {
+                    $item->product->increment('stock_quantity', $item->quantity);
+                }
+            }
+        });
+
+        return back()->with('success', 'Order status updated successfully.');
     }
 
     /**
-     * Display the specified resource.
+     * Simple invoice view (HTML / PDF later)
      */
-    public function show(string $id)
+    public function invoice(Order $order)
     {
-        //
-    }
+        $order->load([
+            'customer',
+            'items.product',
+            'items.seller',
+        ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return view('admin.orders.invoice', compact('order'));
     }
 }
