@@ -26,10 +26,17 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
+
         app(CartMigrationService::class)->migrate();
-        return redirect()->intended(route('dashboard', absolute: false));
+
+        $user = Auth::user();
+
+        if (!$user->isActive()) {
+            Auth::logout();
+            return redirect()->route('login')->with('error', 'Your account is deactivated.');
+        }
+        return redirect()->intended($user->getDashboardRoute());
     }
 
     /**

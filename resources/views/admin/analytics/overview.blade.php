@@ -90,7 +90,7 @@
             <!-- Sales Chart -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Last 7 Days Sales</h3>
-                <canvas id="salesChart" height="300"></canvas>
+                <canvas id="salesChart" height="130"></canvas>
             </div>
 
             <!-- Weekly Stats -->

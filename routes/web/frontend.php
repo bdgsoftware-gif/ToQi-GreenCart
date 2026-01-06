@@ -31,6 +31,7 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::post('/add/{product}', [CustomerCartController::class, 'add'])->name('add');
     Route::put('/update/{item}', [CustomerCartController::class, 'update'])->name('update');
     Route::delete('/remove/{item}', [CustomerCartController::class, 'remove'])->name('remove');
+    Route::post('/clear', [CustomerCartController::class, 'clear'])->name('clear');
 });
 
 Route::prefix('wishlist')->name('wishlist.')->group(function () {

@@ -89,4 +89,14 @@ class User extends Authenticatable
     {
         return $this->is_active;
     }
+
+    public function getDashboardRoute(): string
+    {
+        return match (true) {
+            $this->hasRole('admin')    => route('admin.dashboard'),
+            $this->hasRole('seller')   => route('seller.dashboard'),
+            $this->hasRole('customer') => route('customer.dashboard'),
+            default                    => route('home'),
+        };
+    }
 }

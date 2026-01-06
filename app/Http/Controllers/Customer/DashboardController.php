@@ -58,7 +58,7 @@ class DashboardController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('customer.dashboard.orders', compact('orders'));
+        return view('customer.dashboard.orders-history', compact('orders'));
     }
 
     public function wishlist()

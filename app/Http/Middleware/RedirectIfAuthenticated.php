@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\Request;
@@ -16,28 +17,10 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return $this->redirectToRoleDashboard(Auth::user());
+                return redirect(Auth::user()->getDashboardRoute());
             }
         }
 
         return $next($request);
-    }
-
-    protected function redirectToRoleDashboard($user)
-    {
-        if ($user->hasRole('admin')) {
-            return redirect()->route('admin.dashboard');
-        }
-
-        if ($user->hasRole('seller')) {
-            return redirect()->route('seller.dashboard');
-        }
-
-        if ($user->hasRole('customer')) {
-            return redirect()->route('customer.dashboard');
-        }
-
-        // Fallback to home if no role matches
-        return redirect()->route('home');
     }
 }
