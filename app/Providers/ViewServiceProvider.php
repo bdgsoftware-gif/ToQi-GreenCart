@@ -24,7 +24,7 @@ class ViewServiceProvider extends ServiceProvider
         View::composer('*', function ($view) {
             $cartCount = 0;
 
-            if (Auth::check() && Auth::user()->isCustomer()) {
+            if (Auth::check() && Auth::user()->hasRole('customer')) {
                 // For logged-in customers
                 $cart = Auth::user()->cart;
                 if ($cart) {

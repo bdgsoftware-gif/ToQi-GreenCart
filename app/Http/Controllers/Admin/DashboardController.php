@@ -86,7 +86,7 @@ class DashboardController extends Controller
         $conversionRate = 4.2; // This would come from your analytics system
         $customerSatisfaction = 4.5; // This would come from reviews/ratings
 
-        return view('admin.dashboard', compact(
+        return view('admin.dashboard.index', compact(
             'totalRevenue',
             'totalOrders',
             'totalProducts',

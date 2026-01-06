@@ -7,7 +7,7 @@ class WishlistManager {
         this.initAddToWishlist();
         this.initRemoveFromWishlist();
         this.initMoveToCart();
-        console.log("Wishlist Initialize Successfully.");
+        // console.log("Wishlist Initialize Successfully.");
     }
 
     /* ===============================

@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Category;
 use Illuminate\Database\Seeder;
+use App\Models\Category;
+use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
@@ -12,48 +13,44 @@ class CategorySeeder extends Seeder
         $categories = [
             [
                 'name' => 'Electronics',
-                'description' => 'Latest electronic gadgets and devices',
+                'description' => 'Latest electronic gadgets and devices'
             ],
             [
                 'name' => 'Fashion',
-                'description' => 'Clothing, shoes, and accessories',
+                'description' => 'Clothing, accessories, and footwear'
             ],
             [
-                'name' => 'Home & Garden',
-                'description' => 'Home decor, furniture, and gardening',
+                'name' => 'Home & Kitchen',
+                'description' => 'Home appliances and kitchenware'
             ],
             [
                 'name' => 'Books',
-                'description' => 'Books across all genres',
+                'description' => 'Educational and entertainment books'
             ],
             [
-                'name' => 'Sports & Outdoors',
-                'description' => 'Sports equipment and outdoor gear',
+                'name' => 'Sports',
+                'description' => 'Sports equipment and accessories'
             ],
             [
-                'name' => 'Health & Beauty',
-                'description' => 'Health products and beauty supplies',
+                'name' => 'Beauty',
+                'description' => 'Cosmetics and personal care'
+            ],
+            [
+                'name' => 'Furniture',
+                'description' => 'Home and office furniture'
             ],
             [
                 'name' => 'Toys & Games',
-                'description' => 'Toys, games, and entertainment',
-            ],
-            [
-                'name' => 'Automotive',
-                'description' => 'Car accessories and automotive products',
-            ],
-            [
-                'name' => 'Food & Grocery',
-                'description' => 'Food items and grocery products',
-            ],
-            [
-                'name' => 'Jewelry',
-                'description' => 'Fine jewelry and accessories',
+                'description' => 'Children toys and family games'
             ],
         ];
 
         foreach ($categories as $category) {
-            Category::create($category);
+            Category::create([
+                'name' => $category['name'],
+                'slug' => Str::slug($category['name']),
+                'description' => $category['description'],
+            ]);
         }
     }
 }

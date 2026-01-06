@@ -2,209 +2,175 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Seeder;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Category;
-use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
 {
     public function run(): void
     {
-        // Get all sellers (role_id = 2)
-        $sellers = User::where('role_id', 2)->get();
+        // Get sellers
+        $sellers = User::whereHas('role', function ($q) {
+            $q->where('slug', 'seller');
+        })->get();
 
-        if ($sellers->isEmpty()) {
-            // Create a seller if none exist
-            $seller = User::factory()->seller()->create();
-            $sellers = collect([$seller]);
-        }
-
+        // Get categories
         $categories = Category::all();
 
-        if ($categories->isEmpty()) {
-            $this->call(CategorySeeder::class);
-            $categories = Category::all();
-        }
-
         $products = [
-            // Electronics
+            // Electronics (Seller 1 - Toqi Ahmed)
             [
-                'name' => 'iPhone 15 Pro',
-                'description' => 'Latest iPhone with advanced camera system',
-                'price' => 999.99,
+                'name' => 'Smartphone X Pro',
+                'description' => 'Latest smartphone with 128GB storage, 8GB RAM, and 48MP camera',
+                'price' => 34999.00,
                 'stock_quantity' => 50,
-                'category_id' => $categories->where('name', 'Electronics')->first()->id,
+                'category' => 'Electronics',
+                'seller_index' => 0,
+                'sku' => 'PHN-XPRO-001',
+                'image' => 'products/smartphone.jpg',
             ],
             [
-                'name' => 'Samsung Galaxy S24',
-                'description' => 'Android flagship with amazing display',
-                'price' => 899.99,
-                'stock_quantity' => 75,
-                'category_id' => $categories->where('name', 'Electronics')->first()->id,
-            ],
-            [
-                'name' => 'MacBook Pro 16"',
-                'description' => 'Professional laptop for creative work',
-                'price' => 2499.99,
-                'stock_quantity' => 25,
-                'category_id' => $categories->where('name', 'Electronics')->first()->id,
-            ],
-            [
-                'name' => 'Sony WH-1000XM5',
-                'description' => 'Noise-cancelling wireless headphones',
-                'price' => 399.99,
+                'name' => 'Wireless Bluetooth Earbuds',
+                'description' => 'Noise cancellation wireless earbuds with 30 hours battery',
+                'price' => 2499.00,
                 'stock_quantity' => 100,
-                'category_id' => $categories->where('name', 'Electronics')->first()->id,
-            ],
-
-            // Fashion
-            [
-                'name' => 'Leather Jacket',
-                'description' => 'Genuine leather jacket for men',
-                'price' => 199.99,
-                'stock_quantity' => 30,
-                'category_id' => $categories->where('name', 'Fashion')->first()->id,
+                'category' => 'Electronics',
+                'seller_index' => 0,
+                'sku' => 'EAR-BT-002',
+                'image' => 'products/earbuds.jpg',
             ],
             [
-                'name' => 'Summer Dress',
-                'description' => 'Floral print summer dress for women',
-                'price' => 59.99,
-                'stock_quantity' => 80,
-                'category_id' => $categories->where('name', 'Fashion')->first()->id,
-            ],
-            [
-                'name' => 'Running Shoes',
-                'description' => 'Comfortable running shoes for all terrains',
-                'price' => 129.99,
-                'stock_quantity' => 60,
-                'category_id' => $categories->where('name', 'Fashion')->first()->id,
-            ],
-
-            // Home & Garden
-            [
-                'name' => 'Coffee Table',
-                'description' => 'Modern wooden coffee table',
-                'price' => 299.99,
-                'stock_quantity' => 15,
-                'category_id' => $categories->where('name', 'Home & Garden')->first()->id,
-            ],
-            [
-                'name' => 'Indoor Plant Set',
-                'description' => 'Set of 5 indoor plants with pots',
-                'price' => 89.99,
-                'stock_quantity' => 40,
-                'category_id' => $categories->where('name', 'Home & Garden')->first()->id,
-            ],
-
-            // Books
-            [
-                'name' => 'The Midnight Library',
-                'description' => 'Bestselling novel by Matt Haig',
-                'price' => 19.99,
-                'stock_quantity' => 200,
-                'category_id' => $categories->where('name', 'Books')->first()->id,
-            ],
-            [
-                'name' => 'Atomic Habits',
-                'description' => 'Build good habits and break bad ones',
-                'price' => 24.99,
-                'stock_quantity' => 150,
-                'category_id' => $categories->where('name', 'Books')->first()->id,
-            ],
-
-            // Sports
-            [
-                'name' => 'Yoga Mat',
-                'description' => 'Premium non-slip yoga mat',
-                'price' => 39.99,
-                'stock_quantity' => 120,
-                'category_id' => $categories->where('name', 'Sports & Outdoors')->first()->id,
-            ],
-            [
-                'name' => 'Dumbbell Set',
-                'description' => 'Adjustable dumbbell set 5-25kg',
-                'price' => 149.99,
-                'stock_quantity' => 35,
-                'category_id' => $categories->where('name', 'Sports & Outdoors')->first()->id,
-            ],
-
-            // Health & Beauty
-            [
-                'name' => 'Vitamin C Serum',
-                'description' => 'Anti-aging vitamin C serum',
-                'price' => 29.99,
-                'stock_quantity' => 200,
-                'category_id' => $categories->where('name', 'Health & Beauty')->first()->id,
-            ],
-            [
-                'name' => 'Electric Toothbrush',
-                'description' => 'Sonic electric toothbrush with charger',
-                'price' => 79.99,
-                'stock_quantity' => 90,
-                'category_id' => $categories->where('name', 'Health & Beauty')->first()->id,
-            ],
-
-            // Toys & Games
-            [
-                'name' => 'LEGO Star Wars Set',
-                'description' => 'Collectible LEGO Star Wars Millennium Falcon',
-                'price' => 199.99,
+                'name' => 'Laptop Ultrabook',
+                'description' => '14-inch laptop with Intel i7, 16GB RAM, 512GB SSD',
+                'price' => 89999.00,
                 'stock_quantity' => 20,
-                'category_id' => $categories->where('name', 'Toys & Games')->first()->id,
-            ],
-            [
-                'name' => 'Board Game Collection',
-                'description' => 'Set of 5 popular board games',
-                'price' => 99.99,
-                'stock_quantity' => 45,
-                'category_id' => $categories->where('name', 'Toys & Games')->first()->id,
+                'category' => 'Electronics',
+                'seller_index' => 0,
+                'sku' => 'LAP-ULT-003',
+                'image' => 'products/laptop.jpg',
             ],
 
-            // Automotive
+            // Fashion (Seller 2 - Sayma Jahan)
             [
-                'name' => 'Car Vacuum Cleaner',
-                'description' => 'Portable cordless car vacuum',
-                'price' => 49.99,
-                'stock_quantity' => 80,
-                'category_id' => $categories->where('name', 'Automotive')->first()->id,
-            ],
-            [
-                'name' => 'Dash Cam',
-                'description' => '4K dash camera with night vision',
-                'price' => 129.99,
-                'stock_quantity' => 60,
-                'category_id' => $categories->where('name', 'Automotive')->first()->id,
-            ],
-
-            // Jewelry
-            [
-                'name' => 'Silver Necklace',
-                'description' => '925 sterling silver necklace with pendant',
-                'price' => 89.99,
-                'stock_quantity' => 50,
-                'category_id' => $categories->where('name', 'Jewelry')->first()->id,
-            ],
-            [
-                'name' => 'Gold Earrings',
-                'description' => '24K gold plated earrings',
-                'price' => 149.99,
+                'name' => 'Traditional Saree',
+                'description' => 'Handwoven cotton saree with elegant design',
+                'price' => 3500.00,
                 'stock_quantity' => 30,
-                'category_id' => $categories->where('name', 'Jewelry')->first()->id,
+                'category' => 'Fashion',
+                'seller_index' => 1,
+                'sku' => 'FSH-SAR-004',
+                'image' => 'products/saree.jpg',
+            ],
+            [
+                'name' => 'Men\'s Formal Shirt',
+                'description' => 'Premium cotton formal shirt for office wear',
+                'price' => 1200.00,
+                'stock_quantity' => 75,
+                'category' => 'Fashion',
+                'seller_index' => 1,
+                'sku' => 'FSH-SHT-005',
+                'image' => 'products/shirt.jpg',
+            ],
+            [
+                'name' => 'Designer Kurti',
+                'description' => 'Embroidered cotton kurti with matching dupatta',
+                'price' => 1800.00,
+                'stock_quantity' => 40,
+                'category' => 'Fashion',
+                'seller_index' => 1,
+                'sku' => 'FSH-KUR-006',
+                'image' => 'products/kurti.jpg',
+            ],
+
+            // Furniture (Seller 3 - Prodip Shaha)
+            [
+                'name' => 'Wooden Dining Table Set',
+                'description' => '6-seater wooden dining table with chairs',
+                'price' => 25500.00,
+                'stock_quantity' => 10,
+                'category' => 'Furniture',
+                'seller_index' => 2,
+                'sku' => 'FUR-DIN-007',
+                'image' => 'products/dining-set.jpg',
+            ],
+            [
+                'name' => 'Office Desk Chair',
+                'description' => 'Ergonomic office chair with lumbar support',
+                'price' => 6500.00,
+                'stock_quantity' => 25,
+                'category' => 'Furniture',
+                'seller_index' => 2,
+                'sku' => 'FUR-CHA-008',
+                'image' => 'products/chair.jpg',
+            ],
+            [
+                'name' => 'Bookshelf',
+                'description' => '5-tier wooden bookshelf with glass doors',
+                'price' => 8500.00,
+                'stock_quantity' => 15,
+                'category' => 'Furniture',
+                'seller_index' => 2,
+                'sku' => 'FUR-BOK-009',
+                'image' => 'products/bookshelf.jpg',
+            ],
+
+            // Home & Kitchen (Seller 1)
+            [
+                'name' => 'Non-Stick Cookware Set',
+                'description' => '10-piece non-stick cookware set with utensils',
+                'price' => 4500.00,
+                'stock_quantity' => 35,
+                'category' => 'Home & Kitchen',
+                'seller_index' => 0,
+                'sku' => 'HOM-COK-010',
+                'image' => 'products/cookware.jpg',
+            ],
+
+            // Books (Seller 2)
+            [
+                'name' => 'Bangla Literature Collection',
+                'description' => 'Collection of classic Bangla literature books',
+                'price' => 1200.00,
+                'stock_quantity' => 60,
+                'category' => 'Books',
+                'seller_index' => 1,
+                'sku' => 'BOK-LIT-011',
+                'image' => 'products/books.jpg',
+            ],
+
+            // Sports (Seller 3)
+            [
+                'name' => 'Cricket Bat',
+                'description' => 'Premium English willow cricket bat',
+                'price' => 3500.00,
+                'stock_quantity' => 20,
+                'category' => 'Sports',
+                'seller_index' => 2,
+                'sku' => 'SPO-CRI-012',
+                'image' => 'products/cricket-bat.jpg',
             ],
         ];
 
-        foreach ($products as $productData) {
-            Product::create(array_merge($productData, [
-                'seller_id' => $sellers->random()->id,
-                'is_active' => true,
-            ]));
-        }
+        foreach ($products as $product) {
+            $category = $categories->where('name', $product['category'])->first();
+            $seller = $sellers[$product['seller_index']];
 
-        // Create additional random products
-        Product::factory(50)->create([
-            'seller_id' => $sellers->random()->id,
-            'category_id' => $categories->random()->id,
-        ]);
+            Product::create([
+                'seller_id' => $seller->id,
+                'category_id' => $category->id,
+                'name' => $product['name'],
+                'slug' => Str::slug($product['name']),
+                'sku' => $product['sku'],
+                'description' => $product['description'],
+                'price' => $product['price'],
+                'stock_quantity' => $product['stock_quantity'],
+                'approval_status' => 'approved',
+                'is_active' => true,
+                'image' => $product['image'],
+            ]);
+        }
     }
 }
